@@ -1,0 +1,50 @@
+---
+
+- name: insert kernel parameters
+  block:
+    - name: slurp /etc/default/grub
+      ansible.builtin.slurp:
+        src: /etc/default/grub
+      register: slurp_grub
+      failed_when: no
+
+    - name: grub insert
+      vars:
+        name: "{{ item.split('=', 1)[0] }}"
+        options: "{{ item.split('=', 1)[1].replace('\"', '').split(' ') | union(core_cmdline.ubuntu) | unique | sort }}"
+        line: "{{ name }}=\"{{ options | join(' ') }}\""
+      ansible.builtin.lineinfile:
+        dest: /etc/default/grub
+        regexp: '^{{ name }}='
+        line: "{{ line }}"
+      when:
+        - item.split('=', 1)[0][:18] == 'GRUB_CMDLINE_LINUX'
+      loop: "{{ (slurp_grub['content'] | b64decode).split('\n') }}"
+      notify:
+        - apply grub
+  rescue:
+    - name: get cmdline_path
+      stat:
+        path: /boot/cmdline.txt
+      register: cmdline_stat
+
+    - name: set cmdline_path
+      ansible.builtin.set_fact:
+        cmdline_path: "/boot/{% if not cmdline_stat.stat.exists %}firmware/{% endif %}cmdline.txt"
+
+    - name: slurp cmdline
+      ansible.builtin.slurp:
+        src: "{{ cmdline_path }}"
+      register: slurp_cmdline
+      when:
+        - ansible_architecture != 'x86_64'
+
+    - name: insert into cmdline
+      ansible.builtin.copy:
+        content: "{{ (slurp_cmdline['content'] | b64decode).replace('\n', '').split(' ') | union(core_cmdline.raspbian) | unique | join(' ')}}\n"
+        dest: "{{ cmdline_path }}"
+        mode: 0751
+        owner: root
+        group: root
+      when:
+        - ansible_architecture != 'x86_64'

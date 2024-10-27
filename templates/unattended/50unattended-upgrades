@@ -1,0 +1,22 @@
+Unattended-Upgrade::Automatic-Reboot "false";
+Unattended-Upgrade::Automatic-Reboot-Time "04:00";
+
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+
+Unattended-Upgrade::Origin-Patterns {
+      // For NUC
+      "o=Ubuntu,a=${distro_codename}-security"
+      "o=Ubuntu,a=${distro_codename}-updates"
+      // "o=Ubuntu,a=${distro_codename}"
+      // "o=Ubuntu,a=${distro_codename}-proposed-updates"
+      
+      // For RPi
+      // "site=raspbian.raspberrypi.org,a=stable"
+      // "site=archive.raspberrypi.org,a=testing"
+};
+
+Unattended-Upgrade::Package-Blacklist {
+{% for package in core_unattended_blacklist %}
+      "{{package}}";
+{% endfor %}
+};

@@ -1,0 +1,23 @@
+---
+
+- name: getent home
+  ansible.builtin.getent:
+    database: passwd
+
+- name: copy bashrc
+  ansible.builtin.template:
+    src: dotfiles/.bashrc
+    dest: "{{ getent_passwd[item][4] }}/.bashrc"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: 0644
+  loop: "{{ users }}"
+
+- name: copy bash_sensible
+  ansible.builtin.template:
+    src: dotfiles/.bash_sensible
+    dest: "{{ getent_passwd[item][4] }}/.bash_sensible"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: 0644
+  loop: "{{ users }}"

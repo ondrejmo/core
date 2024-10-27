@@ -1,0 +1,5 @@
+# ask sudo password for all sudo group members
+%sudo ALL=(ALL) PASSWD: ALL
+
+# remember that password for 2 hours
+Defaults        timestamp_timeout=120

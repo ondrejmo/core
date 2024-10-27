@@ -1,0 +1,48 @@
+---
+
+- name: purge unwanted packages
+  ansible.builtin.apt:
+    state: absent
+    purge: true
+    name:
+      - snapd
+      - apport
+      - openresolv
+      - dhcpcd5
+      - avahi-daemon
+      - multipath-tools
+      - popularity-contest
+  notify:
+    - autoremove
+
+# DISCLAIMER: fuck. off. micro$oft.
+- name: remove vscode repo
+  ansible.builtin.copy:
+    content: ""
+    dest: "{{ item }}"
+    mode: 0644
+    attr: +i
+  loop:
+    - /etc/apt/sources.list.d/vscode.list
+    - /etc/apt/trusted.gpg.d/microsoft.gpg
+  when:
+    - ansible_lsb.id == 'Raspbian' or ansible_lsb.id == 'Debian'
+
+- name: check bcmstat.sh is installed
+  ansible.builtin.command: which bcmstat.sh
+  register: bcmstat_installed
+  failed_when: false
+  changed_when: false
+  when:
+    - ansible_architecture != 'x86_64'
+
+- name: install bcmstat.sh
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/MilhouseVH/bcmstat/master/bcmstat.sh
+    dest: /usr/local/bin
+    mode: 0755
+    owner: root
+    group: root
+  when: 
+    - ansible_architecture != 'x86_64'
+    - bcmstat_installed.rc != 0

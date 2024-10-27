@@ -1,0 +1,16 @@
+---
+
+- name: install exim4 mta
+  ansible.builtin.apt:
+    state: present
+    name:
+      - mailutils
+      - exim4-base
+      - exim4-config
+      - exim4-daemon-light
+
+- name: fix broken ipv6 on exim4
+  ansible.builtin.lineinfile:
+    path: /etc/exim4/update-exim4.conf.conf
+    regexp: dc_local_interfaces='127.0.0.1 ; ::1'
+    line: dc_local_interfaces='127.0.0.1'

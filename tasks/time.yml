@@ -1,0 +1,19 @@
+---
+
+- name: set correct timezone
+  community.general.timezone:
+    name: "{{ core_timezone }}"
+
+- name: copy timesyncd.conf
+  ansible.builtin.template:
+    src: time/timesyncd.conf
+    dest: /etc/systemd/timesyncd.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: reload timesyncd
+
+- name: enabled timesyncd
+  ansible.builtin.systemd:
+    name: systemd-timesyncd
+    enabled: true

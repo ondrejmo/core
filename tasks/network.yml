@@ -1,0 +1,58 @@
+---
+
+- name: change hostname
+  ansible.builtin.hostname:
+    name: "{{ core_hostname }}"
+
+- name: change hostname in /etc/hosts
+  ansible.builtin.lineinfile:
+    dest: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: "127.0.1.1 {{ core_hostname.split('.')[0] }}"
+
+- name: install dependencies
+  ansible.builtin.apt:
+    state: present
+    name:
+      - netplan.io
+      - wireguard-tools
+      - networkd-dispatcher
+
+- name: enable networkd
+  ansible.builtin.systemd:
+    name: systemd-networkd
+    enabled: true
+
+- name: enable resolved
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    enabled: true
+
+- name: load thunderbolt-net kernel module
+  ansible.builtin.copy:
+    content: |
+      thunderbolt-net
+    dest: /etc/modules-load.d/thunderbolt.conf
+    owner: root
+    group: root
+    mode: 0644
+  when:
+    - ansible_architecture == 'x86_64'
+  notify:
+    - reload modules
+
+- name: setup netplan
+  ansible.builtin.copy:
+    content: "{{ item.content | string | from_yaml | to_nice_yaml }}"
+    dest: "/etc/netplan/{{ item.name }}.yaml"
+    owner: root
+    group: root
+    mode: 0600
+  loop: "{{ core_net }}"
+  notify:
+    - apply netplan
+
+- name: disable cloud-init
+  ansible.builtin.file:
+    path: /etc/netplan/50-cloud-init.yaml
+    state: absent

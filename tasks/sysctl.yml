@@ -1,0 +1,16 @@
+---
+
+- name: sysctl tweaking
+  ansible.builtin.template:
+    src: sysctl/95-tweaks.conf
+    dest: /etc/sysctl.d/95-tweaks.conf
+    mode: 0644
+    owner: root
+    group: root
+
+- name: apply hardened/hardened sysctl
+  ansible.builtin.systemd:
+    name: systemd-sysctl.service
+    state: restarted
+    daemon_reload: true
+  changed_when: false

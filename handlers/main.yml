@@ -1,0 +1,56 @@
+---
+
+- name: reload timesyncd
+  ansible.builtin.systemd:
+    name: systemd-timesyncd
+    state: restarted
+    daemon_reload: true
+
+- name: reload sshd
+  ansible.builtin.systemd:
+    name: ssh
+    state: restarted
+    daemon_reload: true
+
+- name: reload dhcpcd
+  ansible.builtin.systemd:
+    name: dhcpcd
+    state: restarted
+    daemon_reload: true
+
+- name: reload wpa_supplicant
+  ansible.builtin.systemd:
+    name: wpa_supplicant
+    state: restarted
+    daemon_reload: true
+
+- name: reload systemd-journald
+  ansible.builtin.systemd:
+    name: systemd-journald
+    state: restarted
+    daemon_reload: true
+
+- name: reload rsyslog
+  ansible.builtin.systemd:
+    name: rsyslog
+    state: restarted
+    daemon_reload: true
+
+- name: reload modules
+  ansible.builtin.systemd:
+    name: systemd-modules-load
+    state: restarted
+    daemon_reload: true
+
+- name: apply grub
+  ansible.builtin.command: /usr/sbin/update-grub2
+
+- name: apply netplan
+  ansible.builtin.command: /usr/sbin/netplan apply
+
+- name: update-ca-certificates
+  ansible.builtin.command: update-ca-certificates
+
+- name: autoremove
+  ansible.builtin.apt:
+    autoremove: true

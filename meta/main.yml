@@ -1,0 +1,24 @@
+---
+
+galaxy_info:
+  role_name: core
+  author: Ondrej Molik
+  description: Configure hardened baseline server
+  company: infrastructure
+  license: GLWTPL
+  min_ansible_version: "2.10"
+
+  galaxy_tags:
+    - amd64
+    - arm64
+    - arm6
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+    - name: Debian
+      versions:
+        - bullseye
+
+dependencies: []

@@ -1,0 +1,30 @@
+---
+
+- name: install required packages
+  ansible.builtin.apt:
+    state: present
+    name:
+      - openssh-client
+      - openssh-server
+      - autossh
+      - sshfs
+      - sshuttle
+
+- name: add core_user ssh keys
+  ansible.posix.authorized_key:
+    user: "{{ core_user }}"
+    key: |
+      {% for pubkey in core_user_ssh_keys %}
+      {{ pubkey }}
+      {% endfor %}
+    exclusive: true
+
+- name: secure sshd
+  ansible.builtin.template:
+    src: sshd/sshd_config
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0600
+    validate: "/usr/sbin/sshd -t -f %s"
+  notify: reload sshd

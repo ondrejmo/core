@@ -1,0 +1,41 @@
+---
+
+# ubuntu
+- name: swap - disable
+  ansible.builtin.command: swapoff -a
+  when:
+    - ansible_lsb.id != 'Raspbian' and ansible_lsb.id != 'Debian'
+
+# ubuntu
+- name: swap - comment in fstab
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+  when:
+    - ansible_lsb.id != 'Raspbian' and ansible_lsb.id != 'Debian'
+
+# ubuntu
+- name: swap - remove swapfile
+  ansible.builtin.file:
+    path: /swap.img
+    state: absent
+  when:
+    - ansible_lsb.id != 'Raspbian' and ansible_lsb.id != 'Debian'
+
+# raspbian
+- name: swap - size 0
+  ansible.builtin.lineinfile:
+    path: /etc/dphys-swapfile
+    line: CONF_SWAPSIZE=0
+  when:
+    - ansible_lsb.id == 'Raspbian' or ansible_lsb.id == 'Debian'
+
+# raspbian
+- name: swap - disable
+  ansible.builtin.systemd:
+    name: dphys-swapfile
+    state: stopped
+    enabled: false
+  when:
+    - ansible_lsb.id == 'Raspbian' or ansible_lsb.id == 'Debian'

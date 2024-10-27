@@ -1,0 +1,29 @@
+---
+
+- name: install rsyslog
+  ansible.builtin.apt:
+    state: present
+    name:
+      - rsyslog
+
+- name: rm /etc/rsyslog.d
+  ansible.builtin.file:
+    path: /etc/rsyslod.d
+    state: absent
+
+- name: configure rsyslog
+  ansible.builtin.template:
+    src: logs/rsyslog.conf
+    dest: /etc/rsyslog.conf
+    mode: 0644
+    owner: root
+    group: root
+  notify:
+    - reload rsyslog
+
+- name: limit journal size
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/journald.conf
+    line: "SystemMaxUse={{ core_journald_max_size }}"
+    regex: "^SystemMaxUse=.*"
+  notify: reload systemd-journald

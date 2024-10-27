@@ -1,0 +1,116 @@
+# This is the sshd server system-wide configuration file. See
+# sshd_config(5) for more information.
+
+# This sshd was compiled with PATH=/usr/bin:/bin:/usr/sbin:/sbin
+
+# The strategy used for options in the default sshd_config shipped with
+# OpenSSH is to specify options with their default value where
+# possible, but leave them commented.  Uncommented options override the
+# default value.
+
+Port 22
+Protocol 2
+AddressFamily inet # disable ipv6
+ListenAddress 0.0.0.0
+
+PidFile /var/run/sshd.pid
+AuthorizedKeysFile	.ssh/authorized_keys
+
+# Logging
+SyslogFacility AUTH
+LogLevel VERBOSE
+
+# Authentication
+LoginGraceTime 30s # terminate login atempt 30s without success
+StrictModes yes # enforce permissions on key files
+MaxAuthTries 4
+MaxSessions 8
+MaxStartups 10:20:40 # prevent overload (see man)
+
+PermitRootLogin no
+PubkeyAuthentication yes
+PasswordAuthentication no
+PermitEmptyPasswords no
+
+#AuthorizedPrincipalsFile none
+#AuthorizedKeysCommand none
+#AuthorizedKeysCommandUser nobody
+
+# For this to work you will also need host keys in /etc/ssh/ssh_known_hosts
+HostbasedAuthentication no
+# Change to yes if you don't trust ~/.ssh/known_hosts for HostbasedAuthentication
+IgnoreUserKnownHosts yes
+# Don't read the user's ~/.rhosts and ~/.shosts files
+IgnoreRhosts yes
+
+# Change to yes to enable challenge-response passwords (beware issues with
+# some PAM modules and threads)
+ChallengeResponseAuthentication no
+
+# no Kerberos or GSSAPI
+KerberosAuthentication no
+GSSAPIAuthentication no
+
+# Set this to 'yes' to enable PAM authentication, account processing,
+# and session processing. If this is enabled, PAM authentication will
+# be allowed through the ChallengeResponseAuthentication and
+# PasswordAuthentication.  Depending on your PAM configuration,
+# PAM authentication via ChallengeResponseAuthentication may bypass
+# the setting of "PermitRootLogin without-password".
+# If you just want the PAM account and session checks to run without
+# PAM authentication, then enable this but set PasswordAuthentication
+# and ChallengeResponseAuthentication to 'no'. Affects also update-motd.
+UsePAM no
+
+# no need for X11 forwarding on headless server
+X11Forwarding no
+
+# so that I don't have to copy keys
+AllowAgentForwarding yes
+
+# mikrotik devices serve this purpose (needed for jumps as well)
+AllowTcpForwarding yes
+
+# enable compression after authentication
+Compression no
+
+# disconnect unresponsive session after 10m
+ClientAliveInterval 60
+ClientAliveCountMax 10
+TCPKeepAlive no
+
+# no per key defined variables
+PermitUserEnvironment no
+
+# no static motd
+PrintMotd no
+
+# remote forwarding bind is specified by user
+GatewayPorts clientspecified
+
+# do not perform reverse lookups for hosts
+UseDNS no
+
+# tun/tap tunneling is disabled
+PermitTunnel no
+
+# no default banner path (showed to user before authentication)
+Banner none
+# no additional text to ssh version banner
+VersionAddendum none
+# print `last`
+PrintLastLog yes
+
+# Allow client to pass locale environment variables
+AcceptEnv LANG LC_*
+
+# Override default of no subsystems
+Subsystem	sftp	/usr/lib/openssh/sftp-server -f AUTHPRIV -l INFO
+
+# Limits users who can use sshd
+AllowUsers {{ core_ssh_allowed_users | join(" ") }}
+
+HostKeyAlgorithms rsa-sha2-512,rsa-sha2-256,ssh-ed25519
+KexAlgorithms diffie-hellman-group18-sha512,diffie-hellman-group16-sha512,curve25519-sha256@libssh.org,curve25519-sha256
+Ciphers aes256-ctr,aes256-gcm@openssh.com,chacha20-poly1305@openssh.com,aes128-ctr,aes192-ctr,aes128-gcm@openssh.com
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com

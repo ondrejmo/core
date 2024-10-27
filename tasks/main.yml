@@ -1,0 +1,113 @@
+---
+
+## Access
+
+- name: configure networking
+  ansible.builtin.import_tasks: network.yml
+
+- name: configure sshd
+  ansible.builtin.import_tasks: sshd.yml
+
+- name: change core_user password
+  ansible.builtin.user:
+    name: "{{ core_user }}"
+    update_password: always
+    password: "{{ core_user_pass | string | password_hash('sha512', 65534 | random(seed=group_names[0]) | string) }}"
+  when:
+    - core_user_pass is defined
+
+## Hardening
+
+- name: hardened /etc/sudoers
+  ansible.builtin.template:
+    src: sudoers/090_hardening
+    dest: /etc/sudoers.d/090_hardening
+    mode: 0440
+    owner: root
+    group: root
+    validate: "visudo -cf %s"
+
+- name: disable cloud-init
+  ansible.builtin.file:
+    path: /etc/sudoers.d/90-cloud-init-users
+    state: absent
+
+- name: configure sysctl.yml
+  ansible.builtin.import_tasks: sysctl.yml
+
+## Workspace
+
+- name: configure dotfiles
+  ansible.builtin.import_tasks: dotfiles.yml
+  vars:
+    users:
+      - "{{ core_user }}"
+      - root
+
+- name: ensure common locales exists
+  community.general.locale_gen:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ core_languages }}"
+
+- name: install packages
+  ansible.builtin.import_tasks: packages.yml
+
+## Hardware
+
+- name: configure kernel parameters
+  ansible.builtin.import_tasks: cmdline.yml
+
+- name: configure GPU tooling
+  ansible.builtin.import_tasks: gpu.yml
+
+- name: disable swap
+  ansible.builtin.import_tasks: swap.yml
+  when:
+    - ansible_swaptotal_mb > 0
+
+- name: set wifi regulatory domain
+  ansible.builtin.lineinfile:
+    state: present
+    path: /etc/default/crda
+    regex: ^REGDOMAIN=[A-Z]{0,2}
+    line: REGDOMAIN={{ core_wifi_regdomain }}
+  when:
+    - ansible_lsb.id == 'Raspbian' or ansible_lsb.id == 'Debian'
+
+## Maintenance
+
+- name: configure logging
+  ansible.builtin.import_tasks: logs.yml
+
+- name: configure MTA
+  ansible.builtin.import_tasks: mta.yml
+
+- name: configure NTP
+  ansible.builtin.import_tasks: time.yml
+
+- name: configure unattended upgrade
+  ansible.builtin.import_tasks: unattended.yml
+
+- name: disable cloud-init
+  ansible.builtin.file:
+    path: /etc/cloud/cloud-init.disabled
+    state: touch
+    mode: 0600
+    owner: root
+    group: root
+    modification_time: preserve
+    access_time: preserve
+  when:
+    - ansible_lsb.id != 'Raspbian' and ansible_lsb.id != 'Debian'
+
+- name: add trusted CAs
+  ansible.builtin.copy:
+    dest: "/usr/local/share/ca-certificates/{{ item.name }}.crt"
+    owner: root
+    group: root
+    mode: 0644
+    content: "{{ item.cert }}"
+  loop: "{{ core_ca }}"
+  notify:
+    - update-ca-certificates
