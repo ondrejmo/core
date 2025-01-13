@@ -2,11 +2,14 @@
 
 - name: sysctl tweaking
   ansible.builtin.template:
-    src: sysctl/95-tweaks.conf
-    dest: /etc/sysctl.d/95-tweaks.conf
+    src: "sysctl/{{ item }}"
+    dest: "/etc/sysctl.d/{{ item }}"
     mode: 0644
     owner: root
     group: root
+  loop:
+    - 95-tweaks.conf
+    - 99-ipv6.conf
 
 - name: apply hardened/hardened sysctl
   ansible.builtin.systemd:
