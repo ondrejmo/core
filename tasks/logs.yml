@@ -15,7 +15,7 @@
   ansible.builtin.template:
     src: logs/rsyslog.conf
     dest: /etc/rsyslog.conf
-    mode: 0644
+    mode: "0644"
     owner: root
     group: root
   notify:

@@ -35,7 +35,7 @@
     dest: /etc/modules-load.d/thunderbolt.conf
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   when:
     - ansible_architecture == 'x86_64'
   notify:
@@ -47,7 +47,7 @@
     dest: "/etc/netplan/{{ item.name }}.yaml"
     owner: root
     group: root
-    mode: 0600
+    mode: "0600"
   loop: "{{ core_net }}"
   notify:
     - apply netplan

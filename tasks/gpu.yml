@@ -4,13 +4,13 @@
   ansible.builtin.command: raspi-config nonint get_config_var gpu_mem /boot/config.txt
   register: gpu_memory_real
   changed_when: false
-  when: 
+  when:
     - ansible_architecture != 'x86_64'
     - ansible_lsb.id == 'Raspbian' or ansible_lsb.id == 'Debian'
 
 - name: change GPU memory
   ansible.builtin.command: "raspi-config nonint do_memory_split {{ core_gpu_memory | string }}" # INFO: 64-994 / 16-448
-  when: 
+  when:
     - ansible_architecture != 'x86_64'
     - ansible_lsb.id == 'Raspbian' or ansible_lsb.id == 'Debian'
     - gpu_memory_real.stdout != (core_gpu_memory | string )

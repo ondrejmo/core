@@ -20,7 +20,7 @@
   ansible.builtin.copy:
     content: ""
     dest: "{{ item }}"
-    mode: 0644
+    mode: "0644"
     attr: +i
   loop:
     - /etc/apt/sources.list.d/vscode.list
@@ -40,9 +40,9 @@
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/MilhouseVH/bcmstat/master/bcmstat.sh
     dest: /usr/local/bin
-    mode: 0755
+    mode: "0755"
     owner: root
     group: root
-  when: 
+  when:
     - ansible_architecture != 'x86_64'
     - bcmstat_installed.rc != 0

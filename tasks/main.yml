@@ -22,7 +22,7 @@
   ansible.builtin.template:
     src: sudoers/090_hardening
     dest: /etc/sudoers.d/090_hardening
-    mode: 0440
+    mode: "0440"
     owner: root
     group: root
     validate: "visudo -cf %s"
@@ -93,7 +93,7 @@
   ansible.builtin.file:
     path: /etc/cloud/cloud-init.disabled
     state: touch
-    mode: 0600
+    mode: "0600"
     owner: root
     group: root
     modification_time: preserve
@@ -106,7 +106,7 @@
     dest: "/usr/local/share/ca-certificates/{{ item.name }}.crt"
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
     content: "{{ item.cert }}"
   loop: "{{ core_ca }}"
   notify:

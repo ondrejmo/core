@@ -10,7 +10,7 @@
     dest: "{{ getent_passwd[item][4] }}/.bashrc"
     owner: "{{ item }}"
     group: "{{ item }}"
-    mode: 0644
+    mode: "0644"
   loop: "{{ users }}"
 
 - name: copy bash_sensible
@@ -19,5 +19,5 @@
     dest: "{{ getent_passwd[item][4] }}/.bash_sensible"
     owner: "{{ item }}"
     group: "{{ item }}"
-    mode: 0644
+    mode: "0644"
   loop: "{{ users }}"
