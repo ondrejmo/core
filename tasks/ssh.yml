@@ -6,7 +6,6 @@
     name:
       - openssh-client
       - openssh-server
-      - autossh
       - sshfs
       - sshuttle
 
@@ -21,10 +20,18 @@
 
 - name: secure sshd
   ansible.builtin.template:
-    src: sshd/sshd_config
+    src: ssh/sshd_config
     dest: /etc/ssh/sshd_config
     owner: root
     group: root
     mode: "0600"
     validate: "/usr/sbin/sshd -t -f %s"
   notify: reload sshd
+
+- name: set ssh default
+  ansible.builtin.template:
+    src: ssh/ssh_config
+    dest: /etc/ssh/ssh_config
+    owner: root
+    group: root
+    mode: "0644"

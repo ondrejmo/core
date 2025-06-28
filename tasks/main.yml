@@ -5,8 +5,8 @@
 - name: configure networking
   ansible.builtin.import_tasks: network.yml
 
-- name: configure sshd
-  ansible.builtin.import_tasks: sshd.yml
+- name: configure ssh
+  ansible.builtin.import_tasks: ssh.yml
 
 - name: change core_user password
   ansible.builtin.user:
