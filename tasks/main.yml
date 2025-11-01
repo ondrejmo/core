@@ -58,22 +58,21 @@
 - name: configure kernel parameters
   ansible.builtin.import_tasks: cmdline.yml
 
-- name: configure GPU tooling
-  ansible.builtin.import_tasks: gpu.yml
+- name: install intel drivers
+  ansible.builtin.apt:
+    state: present
+    name:
+      - intel-gpu-tools
+      - intel-media-va-driver-non-free
+      - vainfo
+  when:
+    - ansible_architecture == 'x86_64'
+    - ansible_lsb.id != 'Raspbian' and ansible_lsb.id != 'Debian'
 
 - name: disable swap
   ansible.builtin.import_tasks: swap.yml
   when:
     - ansible_swaptotal_mb > 0
-
-- name: set wifi regulatory domain
-  ansible.builtin.lineinfile:
-    state: present
-    path: /etc/default/crda
-    regex: ^REGDOMAIN=[A-Z]{0,2}
-    line: REGDOMAIN={{ core_wifi_regdomain }}
-  when:
-    - ansible_lsb.id == 'Raspbian' or ansible_lsb.id == 'Debian'
 
 ## Maintenance
 

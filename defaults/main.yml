@@ -3,9 +3,6 @@
 # hostname of the node (can be either fqdn or plain)
 core_hostname: "{{ inventory_hostname }}"
 
-# ram allocated to gpu (only on raspberry based system)
-core_gpu_memory: "64"
-
 # username of the primary user
 core_user: "{{ ansible_user }}"
 
