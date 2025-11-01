@@ -17,6 +17,7 @@
       - netplan.io
       - wireguard-tools
       - networkd-dispatcher
+      - systemd-resolved
 
 - name: enable networkd
   ansible.builtin.systemd:
