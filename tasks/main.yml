@@ -69,6 +69,25 @@
     - ansible_architecture == 'x86_64'
     - ansible_lsb.id != 'Raspbian' and ansible_lsb.id != 'Debian'
 
+- name: check nvidia gpu is present
+  ansible.builtin.shell: lspci -mm | grep NVIDIA
+  register: nvidia_present
+  failed_when: false
+  changed_when: false
+  when:
+    - ansible_architecture == 'x86_64'
+
+- name: install nvidia drivers
+  ansible.builtin.apt:
+    state: present
+    name:
+      - nvidia-driver-580-server
+      - nvtop
+  when:
+    - nvidia_present.rc == 0
+    - ansible_architecture == 'x86_64'
+    - ansible_lsb.id != 'Raspbian' and ansible_lsb.id != 'Debian'
+
 - name: disable swap
   ansible.builtin.import_tasks: swap.yml
   when:
