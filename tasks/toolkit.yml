@@ -1,0 +1,58 @@
+---
+
+## DISCLAIMER: is file is being (ab)used by roles/desktop as well
+
+- name: install toolkit packages
+  ansible.builtin.package:
+    state: present
+    name:
+      - tmux
+      - openssl
+      - gnupg
+      - micro
+      - nnn # file manager
+      - fd-find # simpler find
+      - tldr # cooler man
+      - ripgrep
+      - "{% if ansible_distribution == 'Fedora' %}libfdisk{% else %}fdisk{% endif %}"
+      - gdisk
+      - progress
+      - iperf
+      - dnsperf
+      - htop
+      - curl
+      - wget
+      - bat
+      - jq # pipe json
+      - yq # pipe yaml
+      - pv
+      - at
+      - rsync
+      - "{% if ansible_distribution == 'Fedora' %}iputils{% else %}arping{% endif %}"
+      - net-tools
+      - wireguard-tools
+      - "{% if ansible_distribution == 'Fedora' %}wol{% else %}wakeonlan{% endif %}"
+      - traceroute
+      - socat
+      - tcpdump
+      - nmap
+      - "{% if ansible_distribution == 'Fedora' %}nmap-ncat{% else %}netcat-openbsd{% endif %}"
+      - git
+      - mtr
+      - qrencode
+      - "{% if ansible_distribution == 'Fedora' %}sqlite{% else %}sqlite3{% endif %}"
+      - picocom
+      - cryptsetup
+      - btrfs-progs
+      - smartmontools
+      - hdparm
+      - tzdata
+      - fio
+      - bluez
+      - python3
+      - python3-pip
+      - "{% if ansible_distribution == 'Fedora' %}bind-utils{% else %}dnsutils{% endif %}" # nslookup
+      - unzip
+      - pigz
+      - zstd
+      - acl # required to become_user: unpriviledged

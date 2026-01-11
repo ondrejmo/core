@@ -28,21 +28,5 @@
   when:
     - ansible_lsb.id == 'Raspbian' or ansible_lsb.id == 'Debian'
 
-- name: check bcmstat.sh is installed
-  ansible.builtin.command: which bcmstat.sh
-  register: bcmstat_installed
-  failed_when: false
-  changed_when: false
-  when:
-    - ansible_architecture != 'x86_64'
-
-- name: install bcmstat.sh
-  ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/MilhouseVH/bcmstat/master/bcmstat.sh
-    dest: /usr/local/bin
-    mode: "0755"
-    owner: root
-    group: root
-  when:
-    - ansible_architecture != 'x86_64'
-    - bcmstat_installed.rc != 0
+- name: install toolkit
+  ansible.builtin.import_tasks: toolkit.yml

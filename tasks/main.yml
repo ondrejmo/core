@@ -53,47 +53,18 @@
 - name: install packages
   ansible.builtin.import_tasks: packages.yml
 
-## Hardware
+## Hardware & Maintenance
+
+- name: install gpu drivers
+  ansible.builtin.import_tasks: gpu.yml
 
 - name: configure kernel parameters
   ansible.builtin.import_tasks: cmdline.yml
-
-- name: install intel drivers
-  ansible.builtin.apt:
-    state: present
-    name:
-      - intel-gpu-tools
-      - intel-media-va-driver-non-free
-      - vainfo
-  when:
-    - ansible_architecture == 'x86_64'
-    - ansible_lsb.id != 'Raspbian' and ansible_lsb.id != 'Debian'
-
-- name: check nvidia gpu is present
-  ansible.builtin.shell: lspci -mm | grep NVIDIA
-  register: nvidia_present
-  failed_when: false
-  changed_when: false
-  when:
-    - ansible_architecture == 'x86_64'
-
-- name: install nvidia drivers
-  ansible.builtin.apt:
-    state: present
-    name:
-      - nvidia-driver-580-server
-      - nvtop
-  when:
-    - nvidia_present.rc == 0
-    - ansible_architecture == 'x86_64'
-    - ansible_lsb.id != 'Raspbian' and ansible_lsb.id != 'Debian'
 
 - name: disable swap
   ansible.builtin.import_tasks: swap.yml
   when:
     - ansible_swaptotal_mb > 0
-
-## Maintenance
 
 - name: configure logging
   ansible.builtin.import_tasks: logs.yml
